@@ -5,12 +5,15 @@ const messages = document.getElementsByClassName('message');
 const tooHighMessage = document.getElementById('too-high');
 const tooLowMessage = document.getElementById('too-low');
 const maxGuessesMessage = document.getElementById('max-guesses');
-const numberOfGuessesMessage = document.getElementById('num-of-guesses');
+const numberOfGuessesMessage = document.getElementById('number-of-guesses');
 const correctMessage = document.getElementById('correct');
+const bePositive = document.getElementById('havetobepositive');             //음수일 때
+const lessthanHunnit = document.getElementById('max100');             //100보다 클 때
+const notthisnumber = document.getElementById('notanumber');             //NAN일 때
 
 let targetNumber;
-const attempts = 0;
-const maxNumberOfAttempts = 5;
+let attempts = 0;
+let maxNumberOfAttempts = 5;
 
 // Returns a random number from min (inclusive) to max (exclusive)
 // Usage:
@@ -24,37 +27,69 @@ function getRandomNumber(min, max) {
 
 function checkGuess() {
   // Get value from guess input element
-  const guess = parseInt(guessInput.value, 10);
-  attempts = attempts + 1;
-
   hideAllMessages();
+  const guess = parseInt(guessInput.value, 10);
+  attempts++;
 
-  if (guess === targetNumber) {
-    numberOfGuessesMessage.style.display = '';
-    numberOfGuessesMessage.innerHTML = `You made ${attempts} guesses`;
-
-    correctMessage.style.display = '';
-
-    submitButton.disabled = true;
-    guessInput.disabled = true;
+  
+  //
+  if(isNaN(guess) === true){ //NaN일 때
+  notthisnumber.style.display = '';
+  numberOfGuessesMessage.style.display = '';
+  //numberOfGuessesMessage.innerHTML = `You made ${attempts} guesses`;
+  submitButton.disabled = false;
+  guessInput.disabled = false;
+  attempts--;
   }
-
-  if (guess !== targetNumber) {
-    if (guess < targetNumber) {
-      tooLowMessage.style.display = '';
-    } else {
-      tooLowMessage.style.display = '';
+  else if (guess < 0) {    //음수일 때
+    bePositive.style.display = '';
+    //numberOfGuessesMessage.style.display = '';
+    numberOfGuessesMessage.innerHTML = `You made ${attempts} guesses`;
+    submitButton.disabled = false;
+    guessInput.disabled = false;
+    attempts--;
+  }
+  else if(guess > 99){ //100보다 클 때
+    lessthanHunnit.style.display = '';
+    //numberOfGuessesMessage.style.display = '';
+    numberOfGuessesMessage.innerHTML = `You made ${attempts} guesses`;
+    submitButton.disabled = false;
+    guessInput.disabled = false;
+    attempts--;
+  }
+  else{   //
+   
+    if (guess === targetNumber) {
+      numberOfGuessesMessage.style.display = '';
+      numberOfGuessesMessage.innerHTML = `You made ${attempts} guesses`;
+      correctMessage.style.display = '';
+      submitButton.disabled = false;
+      guessInput.disabled = false;
     }
 
-    const remainingAttempts = maxNumberOfAttempts - attempts;
+    if (guess !== targetNumber) {
+      if (guess < targetNumber) {
+        tooLowMessage.style.display = '';
+      } else {
+        tooHighMessage.style.display = '';
+      }
 
-    numberOfGuessesMessage.style.display = '';
-    numberOfGuessesMessage.innerHTML = `You guessed ${guess}. <br> ${remainingAttempts} guesses remaining`;
-  }
+      const remainingAttempts = maxNumberOfAttempts - attempts;
 
-  if (attempts ==== maxNumberOfAttempts) {
-    submitButton.disabled = true;
-    guessInput.disabled = true;
+      numberOfGuessesMessage.style.display = '';
+      numberOfGuessesMessage.innerHTML = `You guessed ${guess}. <br> ${remainingAttempts} guesses remaining`;
+    }
+
+    if (attempts === maxNumberOfAttempts) {
+        if (guess !== targetNumber)
+        {
+          submitButton.disabled = true;
+          guessInput.disabled = true;
+          numberOfGuessesMessage.style.display = '';
+          numberOfGuessesMessage.innerHTML = `You have reached max attempt. Hit reset button`;  //Hit the rest button
+          resetButton.disabled = false;
+      }
+    }
   }
 
   guessInput.value = '';
@@ -63,21 +98,23 @@ function checkGuess() {
 }
 
 function hideAllMessages() {
-  for (let elementIndex = 0; elementIndex <= messages.length; elementIndex++) {
-    messages[elementIndex].style.display = 'none';
+  for (let elementIndex = 0; elementIndex < messages.length; elementIndex++) {
+  messages[elementIndex].style.display = 'none';
   }
 }
-
-funtion setup() {
+  //Chelin : 랜덤 넘버를 세팅하는 곳
+function setup()
+{
   // Get random number
   targetNumber = getRandomNumber(1, 100);
   console.log(`target number: ${targetNumber}`);
 
-  // Reset number of attempts
-  maxNumberOfAttempts = 0;
+  // Reset number of attempts + attempts reset to 0
+  maxNumberOfAttempts = 5;
+  attempts = 0;
 
   // Enable the input and submit button
-  submitButton.disabeld = false;
+  submitButton.disabled = false;
   guessInput.disabled = false;
 
   hideAllMessages();
